@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#f7f7f2">
+<meta name="description" content="영문을 입력하면 15개 스타일로 바로 변환. 한 화면에서 골라 누르면 복사됩니다. 한글 스타일 변환은 지원하지 않습니다.">
+<title>글씨 뚝딱 — 쓰고, 고르고, 복사</title>
+<style>
+:root{--bg:#f7f7f2;--ink:#25291f;--muted:#707668;--line:#dfe3d7;--lime:#dcf78b;--purple:#f0ecf8;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}button,textarea,a{-webkit-tap-highlight-color:transparent}button,textarea{font:inherit}button{color:inherit;cursor:pointer;touch-action:manipulation}button:disabled{cursor:default}button:focus-visible,a:focus-visible{outline:2px solid #8261be;outline-offset:2px}svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}button svg{pointer-events:none}
+.shell{height:var(--app-height,100dvh);max-height:820px;max-width:760px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;min-height:0}header{display:flex;align-items:center;justify-content:space-between;flex:none;height:32px}.brand{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:800;letter-spacing:-.6px}.mark{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:var(--ink);color:var(--lime);font:italic 700 20px Georgia,serif}.header-note{font-size:9px;color:var(--muted);letter-spacing:1px}
+.notice{display:flex;align-items:center;justify-content:space-between;gap:6px;flex:none;min-height:31px;border:1px solid #dce8bc;background:#eff6df;border-radius:9px;padding:6px 9px;font-size:11px}.notice strong{font-size:11px;white-space:nowrap}.notice span{font-size:10px;color:#68734f;line-height:1.35;text-align:right}.notice.unsupported{background:#f3ecfc;border-color:#e0d4f1}.notice.unsupported span{color:#765696}
+.results-head{display:flex;justify-content:space-between;align-items:center;gap:7px;flex:none;min-height:27px}.results-title{margin:0;font-size:12px;font-weight:750;white-space:nowrap}.results-title span{font-weight:400;color:var(--muted);font-size:10px}.shuffle{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:650;border:1px solid var(--line);border-radius:8px;background:transparent;padding:6px 8px;white-space:nowrap}.shuffle:hover{background:#eae2f7}.shuffle:disabled{opacity:.4}
+.results{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));gap:6px}.result-card{display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:0;width:100%;overflow:hidden;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:#fff;text-align:left;transition:background .12s,border-color .12s}.result-card.fixed{background:#f2f8e8;border-color:#d5e4bc}.result-card.random:nth-child(even){background:#f5f2fa}.result-card:hover:not(:disabled){border-color:#b0bd98}.result-card:active:not(:disabled){background:#e4efcc}.result-card.copied{background:#e0f5ac!important;border-color:#8caf4a}.card-meta{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:4px;flex:none}.style-name{color:var(--muted);font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.fixed .style-name{color:#677a48}.copy-icon{display:flex;align-items:center;justify-content:center;color:#93998b;flex:none}.copy-icon svg{width:12px;height:12px}.copied .copy-icon{color:#4f7522}.result-card:disabled .copy-icon{opacity:.25}.result-text{font-family:"Cambria Math","STIX Two Math","Noto Sans Math","Noto Sans Symbols 2",var(--font);font-size:clamp(12px,3.7vw,22px);line-height:1.35;letter-spacing:-.2px;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis;max-height:1.35em;min-height:0;flex-shrink:0}.result-card:disabled .result-text{font:12px/1.3 var(--font);color:#a1a697}.legend{flex:none;margin:0;text-align:center;font-size:9px;line-height:1.3;color:var(--muted)}
+.input-panel{flex:none;background:#fff;border:1px solid #d5dcce;border-radius:12px;padding:8px 10px;box-shadow:0 -2px 15px #25291f04}.input-panel:focus-within{border-color:#8ba75c;box-shadow:0 0 0 2px #dcf78b66}.input-top{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:4px}.input-top label{font-size:11px;font-weight:750}.input-tools{display:flex;gap:6px;align-items:center}.counter{font-size:9px;color:var(--muted);font-variant-numeric:tabular-nums}.clear,.done{height:25px;border:0;border-radius:6px;font-size:10px;padding:3px 7px;background:#f0f2eb}.clear{display:flex;align-items:center;justify-content:center;width:25px;padding:0}.done{background:var(--lime);font-weight:700}.input-row{display:flex;align-items:center;gap:6px}textarea#source{width:100%;display:block;flex:1;height:39px;min-height:0;max-height:39px;padding:6px 0;resize:none;border:0;outline:0;background:transparent;color:var(--ink);font-size:16px;line-height:1.45}textarea::placeholder{color:#9a9f91}.sample{flex:none;border:1px solid var(--line);border-radius:7px;background:#fafbf7;padding:6px;font-size:9px;color:#68705d}
+footer{flex:none;display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:9px;line-height:1.2;color:var(--muted)}footer a{display:flex;align-items:center;gap:3px;color:inherit;text-decoration:none}footer svg{width:11px;height:11px}.toast{position:fixed;left:50%;top:12px;transform:translate(-50%,-8px);opacity:0;background:var(--ink);color:#fff;padding:10px 16px;border-radius:11px;font-size:12px;box-shadow:0 4px 20px #25291f22;z-index:50;white-space:nowrap;pointer-events:none;transition:opacity .15s,transform .15s}.toast.show{opacity:1;transform:translate(-50%,0)}dialog{width:min(90vw,420px);max-height:90dvh;border:1px solid var(--line);border-radius:16px;padding:20px;background:#fff;color:var(--ink)}dialog::backdrop{background:#20231e75}dialog h2{margin:0 0 8px;font-size:17px}dialog p{font-size:12px;line-height:1.5;color:var(--muted)}dialog textarea{width:100%;height:80px;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:16px}dialog button{float:right;margin-top:10px;padding:8px 18px;border:0;border-radius:8px;background:var(--lime);font-weight:700}
+.compact .shell{gap:5px;padding-top:5px;padding-bottom:5px}.compact header{height:26px}.compact .mark{height:24px;width:24px;font-size:17px}.compact .brand{font-size:14px}.compact .notice{min-height:24px;padding:4px 7px}.compact .results{gap:4px}.compact .result-card{padding:4px 6px;border-radius:8px}.compact .card-meta{margin-bottom:2px}.compact .result-text{font-size:16px;-webkit-line-clamp:1;max-height:1.25em;white-space:nowrap;text-overflow:ellipsis;display:block}.compact .input-panel{padding:5px 8px}.compact #source{height:30px;max-height:30px;padding:3px 0}.compact .input-top{margin-bottom:1px}.compact .legend{font-size:8px}.compact footer{display:none}
+.tiny .shell{gap:4px}.tiny header{height:22px}.tiny .header-note{display:none}.tiny .notice{min-height:22px}.tiny .notice strong{font-size:10px}.tiny .notice span{font-size:9px}.tiny .results-head{min-height:23px}.tiny .shuffle{padding:4px 6px}.tiny .card-meta{display:none}.tiny .result-card{padding:2px 5px;justify-content:center}.tiny .result-text{font-size:14px}.tiny .legend{display:none}.tiny .input-top label{font-size:10px}.tiny .input-panel{padding:4px 7px}.tiny .input-tools{gap:4px}.tiny .clear,.tiny .done{height:21px}
+@media(min-width:700px){.shell{padding-left:20px;padding-right:20px;gap:10px}.results{gap:9px}.result-card{padding:10px 13px}.style-name{font-size:11px}.result-text{font-size:25px}.notice{font-size:12px}.notice strong{font-size:12px}}@media(max-width:340px){.shell{padding-left:8px;padding-right:8px;gap:6px}.notice span{font-size:9px}.notice strong{font-size:10px}.result-card{padding-left:6px;padding-right:6px}.style-name{font-size:8px}.sample{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header><div class="brand"><span class="mark" aria-hidden="true">Aa</span>글씨 뚝딱</div><span class="header-note">TYPE · TAP · COPY</span></header>
+<div class="notice" id="language-note" role="note"><strong>영문만 스타일 변환 지원</strong><span id="note-text">한글은 그대로 · 숫자는 일부 지원</span></div>
+<div class="results-head"><h1 class="results-title">추천 스타일 15 <span>· 누르면 복사</span></h1><button class="shuffle" id="shuffle" type="button" aria-label="랜덤 스타일 12개 다시 추천"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3c4 0 8 10 12 10h3M17 13l4 4-4 4M3 17h3c1 0 2-1 3-2M15 9c1-1 2-2 3-2h3M17 3l4 4-4 4"/></svg>다시 추천</button></div>
+<section class="results" id="results" aria-label="변환된 스타일 15개"></section>
+<p class="legend">첫 줄 3개는 고정 · 나머지 12개는 랜덤</p>
+<section class="input-panel" aria-label="영문 텍스트 입력">
+<div class="input-top"><label for="source">영문 입력</label><div class="input-tools"><span class="counter" id="counter">7 / 500</span><button class="clear" id="clear" type="button" aria-label="입력 지우기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button><button class="done" id="done" type="button">완료</button></div></div>
+<div class="input-row"><textarea id="source" rows="1" maxlength="500" placeholder="영문 입력 → 위에서 골라 복사" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="language-note">INJEONG</textarea><button class="sample" type="button" data-sample="Daebak!!" aria-label="Daebak 예시 입력">예시</button></div>
+</section>
+<footer><span>긴 문구도 전체 복사돼요</span><a href="./index.html" download="text-style.html" id="download"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg>HTML 저장</a></footer>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<dialog id="manual-copy" aria-labelledby="manual-title"><h2 id="manual-title">글씨를 길게 눌러 복사해주세요</h2><p>이 브라우저에서 자동 복사를 허용하지 않았어요. 아래 글씨를 선택해 복사할 수 있어요.</p><textarea id="manual-text" readonly aria-label="복사할 텍스트"></textarea><button id="close-dialog" type="button">닫기</button></dialog>
+<script>
+'use strict';
+// STYLE ENGINE: only ASCII letters and digits are replaced. Other text stays intact.
+const range = (start, count = 26) => Array.from({length:count}, (_,i) => String.fromCodePoint(start+i));
+const letters = text => Array.from(text);
+const styles = [
+ {id:'sans-bold',name:'깔끔한 굵게',upper:range(0x1D5D4),lower:range(0x1D5EE),digits:range(0x1D7EC,10)},
+ {id:'sans-bold-italic',name:'굵은 기울임',upper:range(0x1D63C),lower:range(0x1D656),digits:range(0x1D7EC,10)},
+ {id:'fraktur-bold',name:'클래식 고딕',upper:range(0x1D56C),lower:range(0x1D586),digits:range(0x1D7CE,10)},
+ {id:'serif-bold',name:'세리프 굵게',upper:range(0x1D400),lower:range(0x1D41A),digits:range(0x1D7CE,10)},
+ {id:'serif-italic',name:'가벼운 기울임',upper:range(0x1D434),lower:letters('𝑎𝑏𝑐𝑑𝑒𝑓𝑔ℎ𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧'),digits:null},
+ {id:'serif-bold-italic',name:'세리프 굵은 기울임',upper:range(0x1D468),lower:range(0x1D482),digits:range(0x1D7CE,10)},
+ {id:'sans-italic',name:'산뜻한 기울임',upper:range(0x1D608),lower:range(0x1D622),digits:range(0x1D7E2,10)},
+ {id:'monospace',name:'타자기',upper:range(0x1D670),lower:range(0x1D68A),digits:range(0x1D7F6,10)},
+ {id:'double-struck',name:'두 줄 아웃라인',upper:letters('𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ'),lower:range(0x1D552),digits:range(0x1D7D8,10)},
+ {id:'script',name:'부드러운 필기체',upper:letters('𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵'),lower:letters('𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏'),digits:null},
+ {id:'script-bold',name:'굵은 필기체',upper:range(0x1D4D0),lower:range(0x1D4EA),digits:range(0x1D7CE,10)},
+ {id:'fraktur',name:'가느다란 고딕',upper:letters('𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ'),lower:range(0x1D51E),digits:null},
+ {id:'fullwidth',name:'넉넉한 전각',upper:range(0xFF21),lower:range(0xFF41),digits:range(0xFF10,10)},
+ {id:'circled',name:'동그라미',upper:range(0x24B6),lower:range(0x24D0),digits:letters('⓪①②③④⑤⑥⑦⑧⑨')},
+ {id:'squared',name:'네모 대문자',upper:range(0x1F130),lower:range(0x1F130),digits:null},
+ {id:'negative-squared',name:'검정 네모',upper:range(0x1F170).map(c=>c+'\uFE0E'),lower:range(0x1F170).map(c=>c+'\uFE0E'),digits:null},
+ {id:'negative-circled',name:'검정 동그라미',upper:range(0x1F150),lower:range(0x1F150),digits:letters('⓿❶❷❸❹❺❻❼❽❾')},
+ {id:'smallcaps',name:'스몰 캡스',upper:letters('ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ'),lower:letters('ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ'),digits:null},
+ {id:'underline',name:'밑줄',upper:range(65),lower:range(97),digits:range(48,10),mark:'\u0332'},
+ {id:'strike',name:'취소선',upper:range(65),lower:range(97),digits:range(48,10),mark:'\u0336'},
+ {id:'double-underline',name:'이중 밑줄',upper:range(65),lower:range(97),digits:range(48,10),mark:'\u0333'},
+ {id:'spaced',name:'여유로운 자간',upper:range(65).map(c=>c+'\u2009'),lower:range(97).map(c=>c+'\u2009'),digits:range(48,10).map(c=>c+'\u2009')}
+];
+function convert(text,style){
+ return Array.from(text,c=>{const n=c.codePointAt(0);let mapped;if(n>=65&&n<=90)mapped=style.upper[n-65];else if(n>=97&&n<=122)mapped=style.lower[n-97];else if(n>=48&&n<=57&&style.digits)mapped=style.digits[n-48];else return c;return mapped+(style.mark||'');}).join('');
+}
+function pickRandom(previous=[]){
+ const pool=styles.slice(3);
+ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+ const selected=pool.slice(0,12);
+ if(selected.every((s,i)=>s.id===previous[i]))[selected[0],selected[1]]=[selected[1],selected[0]];
+ return selected;
+}
+// UI
+const source=document.getElementById('source');
+const results=document.getElementById('results');
+const counter=document.getElementById('counter');
+const shuffle=document.getElementById('shuffle');
+const note=document.getElementById('language-note');
+const noteText=document.getElementById('note-text');
+const toast=document.getElementById('toast');
+const manualDialog=document.getElementById('manual-copy');
+const manualText=document.getElementById('manual-text');
+const copySVG='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
+const checkSVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
+let randomStyles=pickRandom();
+let inputTimer,toastTimer,composing=false;
+const cards=Array.from({length:15},(_,i)=>{
+ const button=document.createElement('button');button.type='button';button.className='result-card '+(i>=3?'random':'fixed');
+ button.innerHTML='<span class="card-meta"><span class="style-name"></span><span class="copy-icon">'+copySVG+'</span></span><span class="result-text"></span>';
+ button.addEventListener('click',()=>copyResult(button));results.append(button);return button;
+});
+function showToast(message){clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),1800);}
+function render(reroll=false){
+ if(reroll)randomStyles=pickRandom(randomStyles.map(s=>s.id));
+ const text=source.value;const empty=!text.trim();const chosen=[...styles.slice(0,3),...randomStyles];
+ counter.textContent=Array.from(text).length+' / 500';shuffle.disabled=empty;document.getElementById('clear').disabled=!text;
+ const unchanged=!empty&&!/[A-Za-z0-9]/.test(text);note.classList.toggle('unsupported',unchanged);
+ noteText.textContent=unchanged?'한글 변환 불가 · 영문을 입력해주세요':'한글은 그대로 · 숫자는 일부 지원';
+ cards.forEach((card,i)=>{card.classList.remove('copied');clearTimeout(card.copyTimer);card.styleId=chosen[i].id;card.copyText=empty?'':convert(text,chosen[i]);card.disabled=empty;card.querySelector('.style-name').textContent=String(i+1).padStart(2,'0')+' '+chosen[i].name;card.querySelector('.result-text').textContent=empty?'영문 입력':card.copyText;card.querySelector('.copy-icon').innerHTML=copySVG;card.setAttribute('aria-label',chosen[i].name+' 스타일 복사');});
+}
+function fallbackCopy(text){
+ const active=document.activeElement;const start=active===source?source.selectionStart:null;const end=active===source?source.selectionEnd:null;
+ const temp=document.createElement('textarea');temp.value=text;temp.readOnly=true;temp.style.cssText='position:fixed;left:-9999px;top:0;font-size:16px;opacity:0';document.body.append(temp);temp.select();temp.setSelectionRange(0,temp.value.length);
+ let ok=false;try{ok=document.execCommand('copy');}catch(_){}temp.remove();if(active&&active.focus){active.focus({preventScroll:true});if(start!==null)source.setSelectionRange(start,end);}return ok;
+}
+async function copyResult(card){
+ const text=card.copyText;if(!text)return;
+ let ok=false;
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);ok=true;}else{ok=fallbackCopy(text);}}catch(_){ok=fallbackCopy(text);}
+ if(ok){showToast('복사했어요! 원하는 곳에 붙여넣기');if(card.copyText===text){card.classList.add('copied');card.querySelector('.copy-icon').innerHTML=checkSVG;clearTimeout(card.copyTimer);card.copyTimer=setTimeout(()=>{card.classList.remove('copied');card.querySelector('.copy-icon').innerHTML=copySVG;},1600);}}
+ else{manualText.value=text;manualDialog.showModal();manualText.focus();manualText.select();}
+}
+function queueInput(){clearTimeout(inputTimer);if(composing)return;inputTimer=setTimeout(()=>render(true),120);}
+source.addEventListener('input',queueInput);
+source.addEventListener('compositionstart',()=>{composing=true;clearTimeout(inputTimer);});
+source.addEventListener('compositionend',()=>{composing=false;queueInput();});
+document.getElementById('clear').addEventListener('click',()=>{clearTimeout(inputTimer);source.value='';render();source.focus();});
+document.querySelectorAll('[data-sample]').forEach(button=>button.addEventListener('click',()=>{clearTimeout(inputTimer);source.value=button.dataset.sample;render(true);}));
+shuffle.addEventListener('click',()=>{clearTimeout(inputTimer);render(true);showToast('새 스타일 12개를 추천했어요');});
+document.getElementById('done').addEventListener('click',()=>{clearTimeout(inputTimer);render();source.blur();});
+document.getElementById('close-dialog').addEventListener('click',()=>manualDialog.close());
+// Download the original self-contained document, never the rendered cards.
+document.getElementById('download').href=window.location.href.split('#')[0];
+function fitViewport(){
+ const h=Math.round(window.visualViewport?window.visualViewport.height:window.innerHeight);
+ document.documentElement.style.setProperty('--app-height',h+'px');
+ document.documentElement.classList.toggle('compact',h<560);
+ document.documentElement.classList.toggle('tiny',h<420);
+}
+window.addEventListener('resize',fitViewport);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',fitViewport);
+fitViewport();
+render();
+</script>
+</body>
+</html>
